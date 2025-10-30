@@ -1,0 +1,42 @@
+# -------------------------------------------------------------------------
+# Go Board Constraint File (.pcf) for Project10_Pong_Top
+# Matches Verilog port names exactly
+# -------------------------------------------------------------------------
+
+# ------------------------- System Clock ----------------------------------
+set_io i_Clk 15
+
+# ------------------------- UART (RX only) --------------------------------
+set_io i_UART_RX 73
+
+# ------------------------- Push Buttons ----------------------------------
+set_io Sw[0] 53   # Player 1 Up
+set_io Sw[1] 51   # Player 1 Down
+set_io Sw[2] 54   # Player 2 Up
+set_io Sw[3] 52   # Player 2 Down
+
+# ------------------------- VGA -------------------------------------------
+set_io o_VGA_HSync 26
+set_io o_VGA_VSync 27
+
+# Red channel
+set_io o_VGA_Red_0 36
+set_io o_VGA_Red_1 37
+set_io o_VGA_Red_2 40
+
+# Green channel
+set_io o_VGA_Grn_0 29
+set_io o_VGA_Grn_1 30
+set_io o_VGA_Grn_2 33
+
+# Blue channel
+set_io o_VGA_Blu_0 28
+set_io o_VGA_Blu_1 41
+set_io o_VGA_Blu_2 42
+
+# ------------------------- LEDs (optional for debugging) -----------------
+# set_io LED[1] 56
+# set_io LED[2] 57
+# set_io LED[3] 59
+# set_io LED[4] 60
+
