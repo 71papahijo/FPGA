@@ -1,5 +1,5 @@
 module Snake_Top
- (input  i_Clk,       // Main Clock
+    (input  i_Clk,       // Main Clock
     
     // Input Buttons
     input[3:0] Sw,
@@ -56,8 +56,13 @@ module Snake_Top
         .o_Row_Count(w_Row_Count)
     );
 
+    reg Game_Clk;
+    ClkDiv #(.ResetValue(6250000), .WIDTH(23)) ClkDiv_Inst
+    (.Reset(1'b0), .i_Clk(i_Clk), .o_Clk(Game_Clk));
+
     Snake_Logic Snake_Logic_Inst
-    (.i_Clk(i_Clk), 
+    (.Game_Clk(Game_Clk), 
+    .i_Clk(i_Clk),
     .i_HSync(w_Col_Count), 
     .i_VSync(w_Row_Count),
     .i_HSync(w_HSync),

@@ -3,10 +3,11 @@ module Snake_Logic
     parameter c_TOTAL_ROWS=525,
     parameter c_ACTIVE_COLS=640,
     parameter c_ACTIVE_ROWS=480)
-(input i_Clk,
+(input Game_Clk,
+    input i_Clk,
     input i_HSync,
     input i_VSync,
-    
+
     input Snake_Up,
     input Snake_Down,
     input Snake_Left,
