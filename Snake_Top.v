@@ -60,23 +60,20 @@ module Snake_Top
     ClkDiv #(.ResetValue(6250000), .WIDTH(23)) ClkDiv_Inst
     (.Reset(1'b0), .i_Clk(i_Clk), .o_Clk(Game_Clk));
 
-    Snake_Logic Snake_Logic_Inst
-    (.Game_Clk(Game_Clk), 
+    Snake_Logic Snake_Logic_Inst (
+    .Game_Clk(Game_Clk),
     .i_Clk(i_Clk),
-    // .i_HSync(w_Col_Count), 
-    // .i_VSync(w_Row_Count),
     .i_HSync(w_HSync),
     .i_VSync(w_VSync),
-    .Snake_Up(D_Sw[0]),
-    .Snake_Down(D_Sw[1]),
-    .Snake_Left(D_Sw[2]),
-    .Snake_Right(D_Sw[3]),
-    .o_HSync(o_VGA_HSync),
-    .o_VSync(o_VGA_VSync),
-    .o_Red_Video({Red_Rend}),
-    .o_Grn_Video({Grn_Rend}),
-    .o_Blu_Video({Blu_Rend})
-    );
+    .Snake_Up(Sw[3]),
+    .Snake_Down(Sw[0]), // D_Sw[0]
+    .Snake_Left(Sw[1]),
+    .Snake_Right(Sw[2]),
+    .o_Red_Video(Red_Rend), 
+    .o_Grn_Video(Grn_Rend),
+    .o_Blu_Video(Blu_Rend)
+);
+
 
 
     VGA_Sync_Porch  #(.VIDEO_WIDTH(c_VIDEO_WIDTH),

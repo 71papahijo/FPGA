@@ -23,7 +23,7 @@ module Snake_Logic
 
    
     reg [89:0] SnakeBody;
-    reg [7:0] SnakeIndexs [1:90];
+    reg [6:0] SnakeIndexs [1:90];
     reg [6:0] SnakeLength;
     reg [3:0] Head_X, Head_Y;
     reg [3:0] Food_X, Food_Y;
@@ -55,8 +55,10 @@ module Snake_Logic
         o_VSync <= w_VSync;
     end
     // Drop 4 LSBs, which effectively divides by 16
-    assign w_Col_Count_Div = w_Col_Count[9:4];
-    assign w_Row_Count_Div = w_Row_Count[9:4];
+    // assign w_Col_Count_Div = w_Col_Count[9:4];
+    // assign w_Row_Count_Div = w_Row_Count[9:4];
+    assign w_Col_Count_Div = w_Col_Count / (c_ACTIVE_COLS / 10);
+    assign w_Row_Count_Div = w_Row_Count / (c_ACTIVE_ROWS / 9);
 
 
     parameter DIR_UP = 2'b00;
@@ -164,7 +166,70 @@ module Snake_Logic
                 // update direction
                 Snake_Dir <= Snake_Dir_Next;
             end
+            GameFinished: begin
+                if(Snake_Right)begin
+                    Game_State <= IDLE;
+                end
+            end
         endcase
     end
+
+// render
+reg [3:0] pixel_R;
+reg [3:0] pixel_G;
+reg [3:0] pixel_B;
+
+integer render_index;
+
+// Each visible pixel belongs to one "cell" in the 10x9 grid
+wire [3:0] cell_X = w_Col_Count_Div[3:0];  // 0–9
+wire [3:0] cell_Y = w_Row_Count_Div[3:0];  // 0–8
+wire [6:0] pixel_index = cell_Y * 10 + cell_X;
+
+always @(*) begin
+    // Default: black background
+    pixel_R = 0;
+    pixel_G = 0;
+    pixel_B = 0;
+
+    if (pixel_index < 90) begin
+        if (SnakeBody[pixel_index]) begin
+            // Snake body — green
+            pixel_R = 0;
+            pixel_G = 15;
+            pixel_B = 0;
+        end
+        else if (pixel_index == (Food_Y * 10 + Food_X)) begin
+            // Food — red
+            pixel_R = 15;
+            pixel_G = 0;
+            pixel_B = 0;
+        end
+        else begin
+            // Background
+            if(Game_State == RUNNING) begin
+                pixel_R = 0;
+                pixel_G = 5;
+                pixel_B = 0;
+            end else if (Game_State == GameFinished) begin
+                pixel_R = 5;
+                pixel_G = 0;
+                pixel_B = 0;
+            end else begin
+                pixel_R = 0;
+                pixel_G = 0;
+                pixel_B = 5;
+            end
+            // pixel_R = 0;
+            // pixel_G = 0;
+            // pixel_B = 0;
+        end
+    end
+end
+
+assign o_Red_Video = pixel_R;
+assign o_Grn_Video = pixel_G;
+assign o_Blu_Video = pixel_B;
+
 
 endmodule
