@@ -1,5 +1,5 @@
 
-module Debounce_Filter #(parameter DEBOUNCE_LIMIT = 20) (
+module Debounce #(parameter DEBOUNCE_LIMIT = 20) (
     input  i_Clk,
     input  i_Bouncy,
     output o_Debounced);

@@ -23,10 +23,11 @@ module Snake_Logic
 
    
     reg [89:0] SnakeBody;
+    reg [7:0] SnakeIndexs [1:90];
+    reg [6:0] SnakeLength;
     reg [3:0] Head_X, Head_Y;
-    reg [3:0] Tail_X, Tail_Y;
-    reg [3:0] Tail2_X, Tail2_Y;
     reg [3:0] Food_X, Food_Y;
+    reg o_Collision;
 
     // Game States
     reg [1:0] Game_State = IDLE;
@@ -74,44 +75,96 @@ module Snake_Logic
     .Snake_Dir(Snake_Dir),  
     .o_Dir(Snake_Dir_Next)       
     );
+    reg i;
+    reg [3:0] new_Head_X, new_Head_Y;
+    reg wallCollision;
+    reg[6:0] tail_index;
+    reg[6:0] new_head_index;
+    reg[6:0] index;
 
 
-
-    always @(posedge i_Clk)
-    begin
+    always @(posedge Game_Clk) begin
         case (Game_State)
-            IDLE:
-            begin
-                if(Snake_Right)
-                begin
+            IDLE: begin
+                if (Snake_Right) begin
                     Game_State <= RUNNING;
                     Snake_Dir <= DIR_RIGHT;
+
+                    // Preload snake
                     Head_X <= 4;
                     Head_Y <= 4;
-                    Tail_X <= 2;
-                    Tail_Y <= 4;
-                    Tail2_X <= 3;
-                    Tail2_Y <= 4;
+                    SnakeIndexs[0] <= 44;
+                    SnakeIndexs[1] <= 43;
+                    SnakeIndexs[2] <= 42; // tail
+                    SnakeLength <= 3;
+
                     Food_X <= 8;
                     Food_Y <= 4;
+
                     SnakeBody <= 90'b0;
-                    SnakeBody[(Head_Y  * 10) + Head_X;] <= 1'b1; // prelaod snake
-                    SnakeBody[(Tail_Y  * 10) + Tail_X]  <= 1'b1;
-                    SnakeBody[(Tail2_Y * 10) + Tail2_X] <= 1'b1;
-
+                    SnakeBody[44] <= 1'b1;
+                    SnakeBody[43] <= 1'b1;
+                    SnakeBody[42] <= 1'b1;
+                
+                    o_Collision <= 0;
                 end
             end
-            RUNNING:
-            begin
-                if (o_Collision) begin
-                    Game_State <= GameFinished;
+
+            RUNNING: begin
+                wallCollision = 0;
+                new_Head_X = Head_X;
+                new_Head_Y = Head_Y;
+
+                case (Snake_Dir_Next)
+                    DIR_UP:    if (Head_Y==0) wallCollision=1; else new_Head_Y = Head_Y-1;
+                    DIR_DOWN:  if (Head_Y==9) wallCollision=1; else new_Head_Y = Head_Y+1;
+                    DIR_LEFT:  if (Head_X==0) wallCollision=1; else new_Head_X = Head_X-1;
+                    DIR_RIGHT: if (Head_X==9) wallCollision=1; else new_Head_X = Head_X+1;
+                endcase
+
+                if (wallCollision) begin
+                    o_Collision <= 1;
+                    Game_State <= GAME_FINISHED;
+                end else begin
+                    o_Collision <= 0;
+                    Head_X <= new_Head_X;
+                    Head_Y <= new_Head_Y;
+
+                    // compute new head index
+                    new_head_index = new_Head_Y*10 + new_Head_X;
+
+                    // self collision
+                    if (SnakeBody[new_head_index] == 1'b1) begin
+                        o_Collision <= 1;
+                        Game_State <= GAME_FINISHED;
+                    end else begin
+                        if (new_head_index == (Food_Y*10 + Food_X)) begin
+                            SnakeIndexs[SnakeLength] <= new_head_index;
+                            SnakeLength <= SnakeLength + 1;
+
+                            SnakeBody[new_head_index] <= 1'b1;
+
+                            // TODO: generate new food
+                        end else begin
+                            tail_index = SnakeIndexs[0];
+                            SnakeBody[tail_index] <= 0;
+
+                            // shift FIFO forward
+                            // SnakeIndexs[0:89] <= SnakeIndexs[1:90]; // cant do it to the same array :(
+                            for (index = 0; index < 89; index = index + 1) begin
+                                SnakeIndexs[index] <= SnakeIndexs[index + 1];
+                            end
+
+                            SnakeIndexs[SnakeLength-1] <= new_head_index;
+                            SnakeBody[new_head_index] <= 1'b1;
+                        end
+                    end
                 end
 
+                // update direction
+                Snake_Dir <= Snake_Dir_Next;
             end
-            
-
-        endcase   
+        endcase
     end
-
 
 endmodule

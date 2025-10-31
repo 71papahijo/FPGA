@@ -22,10 +22,10 @@ module Snake_Top
     );
 
     wire[3:0] D_Sw;
-    Debounce Deb0 (.i_Clk(i_Clk), .i_Switch(Sw[0]), .o_Switch(D_Sw[0]));
-    Debounce Deb1 (.i_Clk(i_Clk), .i_Switch(Sw[1]), .o_Switch(D_Sw[1]));
-    Debounce Deb2 (.i_Clk(i_Clk), .i_Switch(Sw[2]), .o_Switch(D_Sw[2]));
-    Debounce Deb3 (.i_Clk(i_Clk), .i_Switch(Sw[3]), .o_Switch(D_Sw[3]));
+    Debounce Deb0 (.i_Clk(i_Clk), .i_Bouncy(Sw[0]), .o_Debounced(D_Sw[0]));
+    Debounce Deb1 (.i_Clk(i_Clk), .i_Bouncy(Sw[1]), .o_Debounced(D_Sw[1]));
+    Debounce Deb2 (.i_Clk(i_Clk), .i_Bouncy(Sw[2]), .o_Debounced(D_Sw[2]));
+    Debounce Deb3 (.i_Clk(i_Clk), .i_Bouncy(Sw[3]), .o_Debounced(D_Sw[3]));
 
     // VGA Constants to set Frame Size
     parameter c_VIDEO_WIDTH = 3;
