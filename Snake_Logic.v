@@ -25,6 +25,7 @@ module Snake_Logic
     reg [89:0] SnakeBody;
     reg [3:0] Head_X, Head_Y;
     reg [3:0] Tail_X, Tail_Y;
+    reg [3:0] Tail2_X, Tail2_Y;
     reg [3:0] Food_X, Food_Y;
 
     // Game States
@@ -87,9 +88,17 @@ module Snake_Logic
                     Snake_Dir <= DIR_RIGHT;
                     Head_X <= 4;
                     Head_Y <= 4;
+                    Tail_X <= 2;
+                    Tail_Y <= 4;
+                    Tail2_X <= 3;
+                    Tail2_Y <= 4;
                     Food_X <= 8;
                     Food_Y <= 4;
                     SnakeBody <= 90'b0;
+                    SnakeBody[(Head_Y  * 10) + Head_X;] <= 1'b1; // prelaod snake
+                    SnakeBody[(Tail_Y  * 10) + Tail_X]  <= 1'b1;
+                    SnakeBody[(Tail2_Y * 10) + Tail2_X] <= 1'b1;
+
                 end
             end
             RUNNING:
