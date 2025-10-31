@@ -63,8 +63,8 @@ module Snake_Top
     Snake_Logic Snake_Logic_Inst
     (.Game_Clk(Game_Clk), 
     .i_Clk(i_Clk),
-    .i_HSync(w_Col_Count), 
-    .i_VSync(w_Row_Count),
+    // .i_HSync(w_Col_Count), 
+    // .i_VSync(w_Row_Count),
     .i_HSync(w_HSync),
     .i_VSync(w_VSync),
     .Snake_Up(D_Sw[0]),

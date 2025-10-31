@@ -93,9 +93,9 @@ module Snake_Logic
                     // Preload snake
                     Head_X <= 4;
                     Head_Y <= 4;
-                    SnakeIndexs[0] <= 44;
-                    SnakeIndexs[1] <= 43;
-                    SnakeIndexs[2] <= 42; // tail
+                    SnakeIndexs[1] <= 44;
+                    SnakeIndexs[2] <= 43;
+                    SnakeIndexs[3] <= 42; // tail
                     SnakeLength <= 3;
 
                     Food_X <= 8;
@@ -116,15 +116,15 @@ module Snake_Logic
                 new_Head_Y = Head_Y;
 
                 case (Snake_Dir_Next)
-                    DIR_UP:    if (Head_Y==0) wallCollision=1; else new_Head_Y = Head_Y-1;
-                    DIR_DOWN:  if (Head_Y==9) wallCollision=1; else new_Head_Y = Head_Y+1;
-                    DIR_LEFT:  if (Head_X==0) wallCollision=1; else new_Head_X = Head_X-1;
+                    DIR_UP: if (Head_Y==0) wallCollision=1; else new_Head_Y = Head_Y-1;
+                    DIR_DOWN: if (Head_Y==9) wallCollision=1; else new_Head_Y = Head_Y+1;
+                    DIR_LEFT: if (Head_X==0) wallCollision=1; else new_Head_X = Head_X-1;
                     DIR_RIGHT: if (Head_X==9) wallCollision=1; else new_Head_X = Head_X+1;
                 endcase
 
                 if (wallCollision) begin
                     o_Collision <= 1;
-                    Game_State <= GAME_FINISHED;
+                    Game_State <= GameFinished;
                 end else begin
                     o_Collision <= 0;
                     Head_X <= new_Head_X;
@@ -146,16 +146,16 @@ module Snake_Logic
 
                             // TODO: generate new food
                         end else begin
-                            tail_index = SnakeIndexs[0];
+                            tail_index = SnakeIndexs[1];
                             SnakeBody[tail_index] <= 0;
 
                             // shift FIFO forward
                             // SnakeIndexs[0:89] <= SnakeIndexs[1:90]; // cant do it to the same array :(
-                            for (index = 0; index < 89; index = index + 1) begin
+                            for (index = 1; index < 90; index = index + 1) begin
                                 SnakeIndexs[index] <= SnakeIndexs[index + 1];
                             end
 
-                            SnakeIndexs[SnakeLength-1] <= new_head_index;
+                            SnakeIndexs[SnakeLength] <= new_head_index;
                             SnakeBody[new_head_index] <= 1'b1;
                         end
                     end
