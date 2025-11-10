@@ -22,23 +22,25 @@ module Snake_Logic
     output [3:0] o_Blu_Video);
 
    
-    reg [41:0] SnakeBody;
-    reg [5:0] SnakeIndexs [1:20];
-    reg [4:0] SnakeLength;
-    reg [2:0] Head_X, Head_Y;
-    reg [2:0] Food_X, Food_Y;
+    reg[41:0] SnakeBody;
+    reg[5:0] SnakeIndexs [1:20];
+    reg[4:0] ArrayTailIndex;
+    reg[5:0] ArrayHeadIndex;
+    reg[4:0] SnakeLength;
+    reg[2:0] Head_X, Head_Y;
+    reg[2:0] Food_X, Food_Y;
     reg o_Collision;
 
     // Game States
-    reg [1:0] Game_State = IDLE;
+    reg[1:0] Game_State = IDLE;
     parameter IDLE    = 2'b00;
     parameter RUNNING = 2'b01;
     parameter GameFinished = 2'b10;
     parameter CLEANUP = 2'b11;
 
     wire w_HSync, w_VSync;
-    wire [5:0] w_Col_Count_Div, w_Row_Count_Div;
-    wire [9:0] w_Col_Count, w_Row_Count;
+    wire[5:0] w_Col_Count_Div, w_Row_Count_Div;
+    wire[9:0] w_Col_Count, w_Row_Count;
     Sync_To_Count #(.TOTAL_COLS(c_TOTAL_COLS),
                   .TOTAL_ROWS(c_TOTAL_ROWS)) Sync_To_Count_Inst
         (.i_Clk(i_Clk),
@@ -66,8 +68,8 @@ module Snake_Logic
     parameter DIR_LEFT = 2'b10;
     parameter DIR_RIGHT = 2'b11;
 
-    reg [1:0] Snake_Dir;
-    reg [1:0] Snake_Dir_Next;
+    reg[1:0] Snake_Dir;
+    reg[1:0] Snake_Dir_Next;
     Snake_NextDir Directions(
     .i_Clk(i_Clk),
     .Snake_Up(Snake_Up),
@@ -78,7 +80,7 @@ module Snake_Logic
     .o_Dir(Snake_Dir_Next)       
     );
     reg i;
-    reg [3:0] new_Head_X, new_Head_Y;
+    reg[3:0] new_Head_X, new_Head_Y;
     reg wallCollision;
     reg[5:0] tail_index;
     reg[5:0] new_head_index;
@@ -99,6 +101,8 @@ module Snake_Logic
                     SnakeIndexs[2] <= 23;
                     SnakeIndexs[3] <= 24; // tail
                     SnakeLength <= 3;
+                    ArrayTailIndex <= 1;
+                    ArrayHeadIndex <= 3;
 
                     Food_X <= 6;
                     Food_Y <= 3;
@@ -118,10 +122,30 @@ module Snake_Logic
                 new_Head_Y = Head_Y;
 
                 case (Snake_Dir_Next)
-                    DIR_UP: if (Head_Y==0) wallCollision=1; else new_Head_Y = Head_Y-1;
-                    DIR_DOWN: if (Head_Y==5) wallCollision=1; else new_Head_Y = Head_Y+1;
-                    DIR_LEFT: if (Head_X==0) wallCollision=1; else new_Head_X = Head_X-1;
-                    DIR_RIGHT: if (Head_X==6) wallCollision=1; else new_Head_X = Head_X+1;
+                    DIR_UP: 
+                        if (Head_Y==0) begin
+                            wallCollision=1; 
+                        end else begin
+                            new_Head_Y = Head_Y-1; 
+                        end
+                    DIR_DOWN: 
+                        if (Head_Y==5) begin
+                            wallCollision=1; 
+                        end else begin
+                            new_Head_Y = Head_Y+1;
+                        end
+                    DIR_LEFT: 
+                        if (Head_X==0) begin
+                            wallCollision=1; 
+                        end else begin 
+                            new_Head_X = Head_X-1;
+                        end
+                    DIR_RIGHT: 
+                        if (Head_X==6) begin
+                            wallCollision=1; 
+                        end else begin 
+                            new_Head_X = Head_X+1;
+                        end
                 endcase
 
                 if (wallCollision) begin
@@ -138,11 +162,13 @@ module Snake_Logic
                     // self collision
                     if (SnakeBody[new_head_index] == 1'b1) begin
                         o_Collision <= 1;
-                        Game_State <= GAME_FINISHED;
+                        Game_State <= GameFinished;
                     end else begin
                         if (new_head_index == (Food_Y*7 + Food_X)) begin
-                            SnakeIndexs[SnakeLength] <= new_head_index;
+
+                            SnakeIndexs[ArrayHeadIndex] <= new_head_index;
                             SnakeLength <= SnakeLength + 1;
+
                             if(SnakeLength == 20) begin
                                 // max length reached
                                 Game_State <= GameFinished;
@@ -150,18 +176,34 @@ module Snake_Logic
 
                             SnakeBody[new_head_index] <= 1'b1;
 
-                            // TODO: generate new food
-                        end else begin
-                            tail_index = SnakeIndexs[1];
-                            SnakeBody[tail_index] <= 0;
-
-                            // shift FIFO forward
-                            // SnakeIndexs[0:89] <= SnakeIndexs[1:90]; // cant do it to the same array :(
-                            for (index = 1; index < 20; index = index + 1) begin
-                                SnakeIndexs[index] <= SnakeIndexs[index + 1];
+                            if (ArrayHeadIndex == 20) begin 
+                                ArrayHeadIndex <= 1; 
+                            end else begin
+                                ArrayHeadIndex <= ArrayHeadIndex + 1;
                             end
 
-                            SnakeIndexs[SnakeLength] <= new_head_index;
+                            if (ArrayTailIndex == 20) begin 
+                                ArrayTailIndex <= 1; 
+                            end else begin
+                                ArrayTailIndex <= ArrayTailIndex + 1; 
+                            end
+
+                            // TODO: generate new food
+                        end else begin
+                            tail_index = SnakeIndexs[ArrayTailIndex];
+                            SnakeBody[tail_index] <= 0;
+
+                            if (ArrayTailIndex == 20) begin 
+                                ArrayTailIndex <= 1; 
+                            end else begin
+                                ArrayTailIndex <= ArrayTailIndex + 1; 
+                            end
+
+                            // shift snake takes up 12% of LRU,
+                            // for (index = 1; index < 20; index = index + 1) begin
+                            //     SnakeIndexs[index] <= SnakeIndexs[index + 1];
+                            // end
+                            
                             SnakeBody[new_head_index] <= 1'b1;
                         end
                     end
@@ -172,8 +214,14 @@ module Snake_Logic
             end
             GameFinished: begin
                 if(Snake_Right)begin
-                    Game_State <= IDLE;
+                    Game_State <= CLEANUP;
                 end
+            end
+            CLEANUP: begin
+                // Clear snake, display score :)
+                Game_State <= IDLE;
+                SnakeBody <= 42'b0;
+                o_Collision <= 0;
             end
         endcase
     end
@@ -213,20 +261,21 @@ always @(*) begin
             // Background
             if(Game_State == RUNNING) begin
                 pixel_R = 0;
-                pixel_G = 5;
+                pixel_G = 1;
                 pixel_B = 0;
             end else if (Game_State == GameFinished) begin
-                pixel_R = 5;
+                pixel_R = 15;
                 pixel_G = 0;
                 pixel_B = 0;
-            end else begin
+            end else if (Game_State == CLEANUP) begin
+                pixel_R = 0;
+                pixel_G = 0;
+                pixel_B = 0;
+            end else begin // idle 
                 pixel_R = 0;
                 pixel_G = 0;
                 pixel_B = 5;
             end
-            // pixel_R = 0;
-            // pixel_G = 0;
-            // pixel_B = 0;
         end
     end
 end

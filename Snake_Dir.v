@@ -13,30 +13,6 @@ module Snake_NextDir(
     parameter DIR_RIGHT = 2'b11;
 
     always @(posedge i_Clk) begin
-        // default: maintain current direction
-
-        // case (Snake_Dir)
-        //     DIR_UP: begin    
-        //         if (Snake_Left)  o_Dir <= DIR_LEFT;
-        //         else if (Snake_Right) o_Dir <= DIR_RIGHT;
-        //         else if (Snake_Up) o_Dir <= DIR_UP;
-        //     end
-        //     DIR_DOWN: begin  
-        //         if (Snake_Left)  o_Dir <= DIR_RIGHT;
-        //         else if (Snake_Right) o_Dir <= DIR_LEFT;
-        //         else if (Snake_Down) o_Dir <= DIR_DOWN;
-        //     end
-        //     DIR_LEFT: begin  
-        //         if (Snake_Up) o_Dir <= DIR_UP;
-        //         else if (Snake_Down) o_Dir <= DIR_DOWN;
-        //         else if (Snake_Left) o_Dir <= DIR_LEFT;
-        //     end
-        //     DIR_RIGHT: begin 
-        //         if (Snake_Up) o_Dir <= DIR_DOWN;
-        //         else if (Snake_Down) o_Dir <= DIR_UP;
-        //         else if (Snake_Right) o_Dir <= DIR_RIGHT;
-        //     end
-        // endcase
         case (Snake_Dir)
             DIR_UP: begin    
                 if (Snake_Left)  o_Dir <= DIR_LEFT;
