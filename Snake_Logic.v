@@ -199,11 +199,11 @@ module Snake_Logic
                             SnakeBody[new_head_index] <= 1'b1;
                         end
                     end
-                    if (apple_advance) begin
-                        Food_X <= next_Food_X;
-                        Food_Y <= next_Food_Y;
-                        apple_advance <= 0;
-                    end
+                end
+                if (apple_advance) begin
+                    Food_X <= next_Food_X;
+                    Food_Y <= next_Food_Y;
+                    apple_advance <= 0;
                 end
 
                 // update direction
