@@ -100,6 +100,7 @@ module Snake_Logic
     reg[5:0] tail_index;
     reg[5:0] new_head_index;
     reg[5:0] index;
+    wire eaten;
 
 
         always @(posedge Game_Clk) begin
@@ -163,13 +164,14 @@ module Snake_Logic
 
                     // compute new head index
                     new_head_index = new_Head_Y*7 + new_Head_X;
+                    eaten = (new_head_index == Food_Y*7 + Food_X);
 
                     // self collision
                     if (SnakeBody[new_head_index] == 1'b1) begin
                         o_Collision <= 1;
                         Game_State <= GameFinished;
                     end else begin
-                        if (new_head_index == (Food_Y*7 + Food_X)) begin
+                        if (eaten) begin
                             SnakeIndexs[SnakeLength] <= new_head_index;
                             SnakeLength <= SnakeLength + 1;
                             if(SnakeLength == 20) begin
@@ -181,8 +183,6 @@ module Snake_Logic
 
                             // CHANGE: advance apple when eaten
                             apple_advance <= 1'b1;
-                            Food_X        <= next_Food_X;
-                            Food_Y        <= next_Food_Y;
                             // END CHANGE
 
                         end else begin
@@ -200,6 +200,11 @@ module Snake_Logic
                         end
                     end
                 end
+                if(apple_advance){
+                    apple_advance <= 0;
+                    Food_X <= next_Food_X;
+                    Food_Y <= next_Food_Y;
+                }
 
                 // update direction
                 Snake_Dir <= Snake_Dir_Next;

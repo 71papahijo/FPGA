@@ -1,15 +1,10 @@
 // apple_gen.v
-// Simple 4-position apple generator FSM for 7x6 grid
-// Sequence (internal coords):
-//   0: (6,4)   -- your "(7,4)"
-//   1: (0,1)
-//   2: (5,0)
-//   3: (2,5)
+// 7-position apple generator FSM for 7x6 grid
 
 module Apple_Gen
 #(
-    parameter X_WIDTH = 3,   // enough for 0..6
-    parameter Y_WIDTH = 3    // enough for 0..5
+    parameter X_WIDTH = 3,   // 0..6
+    parameter Y_WIDTH = 3    // 0..5
 )
 (
     input  wire                 i_Clk,      // Game_Clk
@@ -20,47 +15,50 @@ module Apple_Gen
     output reg  [Y_WIDTH-1:0]   o_Apple_Y
 );
 
-    // 2-bit state = which apple position we are on (0..3)
-    reg [1:0] r_State;
+    reg [2:0] r_State;  // 0..6
 
-    // State update
     always @(posedge i_Clk) begin
         if (i_Reset) begin
-            r_State <= 2'd0;           // start at first position
+            r_State <= 3'd0;
         end else if (i_Advance) begin
-            r_State <= r_State + 2'd1; // wraps 3->0 automatically
+            if (r_State == 3'd6)
+                r_State <= 3'd0;
+            else
+                r_State <= r_State + 3'd1;
         end
     end
 
-    // Decode state -> (X,Y) coordinate
     always @* begin
         case (r_State)
-            2'd0: begin
-                // (7,4) user-facing -> internal (6,4)
+            3'd0: begin  // near top-right-ish
                 o_Apple_X = 3'd6;
                 o_Apple_Y = 3'd4;
             end
-
-            2'd1: begin
-                // (0,1)
+            3'd1: begin  // near top-left-ish
                 o_Apple_X = 3'd0;
                 o_Apple_Y = 3'd1;
             end
-
-            2'd2: begin
-                // some far-ish position, tweak as you like
-                o_Apple_X = 3'd5;
+            3'd2: begin
+                o_Apple_X = 3'd3;
                 o_Apple_Y = 3'd0;
             end
-
-            2'd3: begin
-                // another far-ish position
-                o_Apple_X = 3'd2;
+            3'd3: begin
+                o_Apple_X = 3'd1;
                 o_Apple_Y = 3'd5;
             end
-
+            3'd4: begin
+                o_Apple_X = 3'd5;
+                o_Apple_Y = 3'd2;
+            end
+            3'd5: begin
+                o_Apple_X = 3'd2;
+                o_Apple_Y = 3'd3;
+            end
+            3'd6: begin
+                o_Apple_X = 3'd4;
+                o_Apple_Y = 3'd1;
+            end
             default: begin
-                // safe default (should never hit)
                 o_Apple_X = 3'd6;
                 o_Apple_Y = 3'd4;
             end
