@@ -100,7 +100,7 @@ module Snake_Logic
     reg[5:0] tail_index;
     reg[5:0] new_head_index;
     reg[5:0] index;
-    wire eaten;
+    reg eaten;
 
 
         always @(posedge Game_Clk) begin
@@ -199,12 +199,12 @@ module Snake_Logic
                             SnakeBody[new_head_index] <= 1'b1;
                         end
                     end
+                    if (apple_advance) begin
+                        Food_X <= next_Food_X;
+                        Food_Y <= next_Food_Y;
+                        apple_advance <= 0;
+                    end
                 end
-                if(apple_advance){
-                    apple_advance <= 0;
-                    Food_X <= next_Food_X;
-                    Food_Y <= next_Food_Y;
-                }
 
                 // update direction
                 Snake_Dir <= Snake_Dir_Next;
