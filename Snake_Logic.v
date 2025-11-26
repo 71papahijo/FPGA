@@ -143,10 +143,14 @@ module Snake_Logic
                 new_Head_Y = Head_Y;
 
                 case (Snake_Dir_Next)
-                    DIR_UP:    if (Head_Y==0) wallCollision=1; else new_Head_Y = Head_Y-1;
-                    DIR_DOWN:  if (Head_Y==5) wallCollision=1; else new_Head_Y = Head_Y+1;
-                    DIR_LEFT:  if (Head_X==0) wallCollision=1; else new_Head_X = Head_X-1;
-                    DIR_RIGHT: if (Head_X==6) wallCollision=1; else new_Head_X = Head_X+1;
+                    // DIR_UP:    if (Head_Y==0) wallCollision=1; else new_Head_Y = Head_Y-1;
+                    // DIR_DOWN:  if (Head_Y==5) wallCollision=1; else new_Head_Y = Head_Y+1;
+                    // DIR_LEFT:  if (Head_X==0) wallCollision=1; else new_Head_X = Head_X-1;
+                    // DIR_RIGHT: if (Head_X==6) wallCollision=1; else new_Head_X = Head_X+1;
+                    DIR_UP:    if (Head_Y==0) new_Head_Y = 5; 
+                    DIR_DOWN:  if (Head_Y==5) new_Head_Y = 0;
+                    DIR_LEFT:  if (Head_X==0) new_Head_X = 6; 
+                    DIR_RIGHT: if (Head_X==6) new_Head_X = 0;
                 endcase
 
                 if (wallCollision) begin
